@@ -1,0 +1,90 @@
+<c3:config xmlns:c3="http://www.cheshire3.org/schemas/config/" xmlns:mets="http://www.loc.gov/METS/" xmlns:dcterms="http://purl.org/dc/terms/" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:dc="http://purl.org/dc/elements/1.1/" type="database" id="db_test_pgsql">
+  <c3:docs>Test Query Highlighting</c3:docs>
+  <c3:objectType>cheshire3.database.SimpleDatabase</c3:objectType>
+  <c3:paths>
+    <c3:path type="defaultPath">/home/cheshire/tests/query_highlight</c3:path>
+    <c3:path type="metadataPath">.cheshire3/stores/metadata.bdb</c3:path>
+    <c3:object ref="recordStore" type="recordStore"/>
+    <c3:object ref="cqlProtocolMap" type="protocolMap"/>
+    <c3:path type="indexStoreList">indexStore</c3:path>
+  </c3:paths>
+
+  <c3:subConfigs>
+    <c3:subConfig type="recordStore" id="recordStore">
+      <c3:objectType>cheshire3.recordStore.BdbRecordStore</c3:objectType>
+      <c3:paths>
+        <c3:path type="defaultPath">.cheshire3/stores</c3:path>
+        <c3:object ref="StringIntNormalizer" type="idNormalizer"/>
+      </c3:paths>
+      <c3:options>
+        <c3:setting type="digest">md5</c3:setting>
+      </c3:options>
+    </c3:subConfig>
+    
+    <c3:subConfig type="indexStore" id="indexStore">
+      <c3:objectType>cheshire3.indexStore.BdbIndexStore</c3:objectType>
+      <c3:paths>
+        <c3:path type="defaultPath">.cheshire3/indexes</c3:path>
+        <c3:path type="tempPath">temp</c3:path>
+        <c3:path type="recordStoreHash">recordStore</c3:path>
+      </c3:paths>
+    </c3:subConfig>
+
+    <c3:subConfig type="protocolMap" id="cqlProtocolMap">
+      <c3:objectType>cheshire3.protocolMap.CQLProtocolMap</c3:objectType>
+      <c3:paths>
+        <c3:path type="zeerexPath">/home/cheshire/tests/postgres/.cheshire3/zeerex_sru.xml</c3:path>
+      </c3:paths>
+    </c3:subConfig>
+
+    <!-- Indexes -->
+
+    <c3:subConfig type="selector" id="anywhereXPathSelector">
+      <c3:docs>Anywhere XPath Selector. Select all mets:xmlData nodes.</c3:docs>
+      <c3:objectType>cheshire3.selector.XPathSelector</c3:objectType>
+      <c3:source>
+        <c3:location type="xpath">/rec/text</c3:location>
+      </c3:source>
+    </c3:subConfig>
+    
+    <c3:subConfig type="index" id="idx-anywhere">
+      <c3:docs>Anywhere / Full-text Index</c3:docs>
+      <c3:objectType>cheshire3.index.ProximityIndex</c3:objectType>
+      <c3:paths>
+        <c3:object ref="indexStore" type="indexStore"/>
+      </c3:paths>
+      <c3:source mode="data">
+        <c3:selector ref="anywhereXPathSelector"/>
+          <c3:process>
+            <c3:object type="extractor" ref="ProxExtractor"/>
+            <c3:object type="tokenizer" ref="RegexpFindOffsetTokenizer"/>
+            <c3:object type="tokenMerger" ref="OffsetProxTokenMerger"/>
+            <c3:object type="normalizer" ref="CaseNormalizer"/>
+          </c3:process>
+      </c3:source>
+      <c3:options>
+              <c3:setting type="longSize">4</c3:setting>
+              <c3:setting type="nProxInts">3</c3:setting>
+      </c3:options>
+    </c3:subConfig>
+
+    <!-- Transformer -->
+
+    <c3:subConfig type="transformer" id="LOQTHTransformer">
+        <c3:objectType>cheshire3.transformer.LxmlOffsetQueryTermHighlightingTransformer</c3:objectType>
+        <c3:options>
+          <c3:setting type="highlightTag">b</c3:setting>
+        </c3:options>
+    </c3:subConfig>
+
+    <c3:subConfig type="transformer" id="PlusTransformer">
+        <c3:objectType>test_qh.transformer.PlusTransformer</c3:objectType>
+        <c3:options>
+          <c3:setting type="highlightTag">b</c3:setting>
+          <c3:setting type="extraWords">3</c3:setting>
+        </c3:options>
+    </c3:subConfig>
+
+
+  </c3:subConfigs>
+</c3:config>
