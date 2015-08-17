@@ -1,0 +1,101 @@
+<c3:config xmlns:c3="http://www.cheshire3.org/schemas/config/" xmlns:mets="http://www.loc.gov/METS/" xmlns:dcterms="http://purl.org/dc/terms/" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:dc="http://purl.org/dc/elements/1.1/" type="database" id="db_test_pgsql">
+  <c3:docs>Test PostgreSQL</c3:docs>
+  <c3:objectType>cheshire3.database.SimpleDatabase</c3:objectType>
+  <c3:paths>
+    <c3:path type="defaultPath">/home/cheshire/tests/postgres</c3:path>
+    <c3:path type="metadataPath">.cheshire3/stores/metadata.bdb</c3:path>
+    <c3:object ref="recordStore" type="recordStore"/>
+    <c3:object ref="cqlProtocolMap" type="protocolMap"/>
+    <c3:path type="indexStoreList">indexStore</c3:path>
+  </c3:paths>
+
+  <c3:subConfigs>
+    <c3:subConfig type="recordStore" id="recordStore">
+      <c3:objectType>cheshire3.sql.recordStore.PostgresRecordStore</c3:objectType>
+      <c3:paths>
+        <c3:path type="databaseName">cheshire</c3:path>
+        <c3:object ref="StringIntNormalizer" type="idNormalizer"/>
+      </c3:paths>
+      <c3:options>
+        <c3:setting type="digest">md5</c3:setting>
+      </c3:options>
+    </c3:subConfig>
+
+    <c3:subConfig type="resultSetStore" id="resultSetStore">
+      <c3:objectType>cheshire3.sql.resultSetStore.PostgresResultSetStore</c3:objectType>
+      <c3:paths>
+        <c3:path type="databaseName">cheshire</c3:path>
+        <c3:object ref="StringIntNormalizer" type="idNormalizer"/>
+      </c3:paths>
+      <c3:options>
+        <c3:setting type="overwriteOkay">0</c3:setting>
+      </c3:options>
+    </c3:subConfig>
+
+    <!-- Note that the cheshire3.sql.indexStore.PostgresIndexStore does not work for me as of 2015-08-16 -->
+    
+    <c3:subConfig type="indexStore" id="indexStore">
+      <c3:objectType>cheshire3.indexStore.BdbIndexStore</c3:objectType>
+      <c3:paths>
+        <c3:path type="defaultPath">.cheshire3/indexes</c3:path>
+        <c3:path type="tempPath">temp</c3:path>
+        <c3:path type="recordStoreHash">recordStore</c3:path>
+      </c3:paths>
+    </c3:subConfig>
+
+    <c3:subConfig type="protocolMap" id="cqlProtocolMap">
+      <c3:objectType>cheshire3.protocolMap.CQLProtocolMap</c3:objectType>
+      <c3:paths>
+        <c3:path type="zeerexPath">/home/cheshire/tests/postgres/.cheshire3/zeerex_sru.xml</c3:path>
+      </c3:paths>
+    </c3:subConfig>
+
+    <!-- Indexes -->
+
+    <c3:subConfig type="selector" id="anywhereXPathSelector">
+      <c3:docs>Anywhere XPath Selector. Select all mets:xmlData nodes.</c3:docs>
+      <c3:objectType>cheshire3.selector.XPathSelector</c3:objectType>
+      <c3:source>
+        <c3:location type="xpath">/rec/text</c3:location>
+      </c3:source>
+    </c3:subConfig>
+    
+    <c3:subConfig type="index" id="idx-anywhere">
+      <c3:docs>Anywhere / Full-text Index</c3:docs>
+      <c3:objectType>cheshire3.index.SimpleIndex</c3:objectType>
+      <c3:paths>
+        <c3:object ref="indexStore" type="indexStore"/>
+      </c3:paths>
+      <c3:source mode="data">
+        <c3:selector ref="anywhereXPathSelector"/>
+        <c3:process>
+          <c3:object ref="SimpleExtractor" type="extractor"/>
+          <c3:object ref="RegexpFindTokenizer" type="tokenizer"/>
+          <c3:object ref="SimpleTokenMerger" type="tokenMerger"/>
+          <c3:object ref="DiacriticNormalizer" type="normalizer"/>
+          <c3:object ref="CaseNormalizer" type="normalizer"/>
+        </c3:process>
+      </c3:source>
+      <c3:source mode="all|any|=">
+        <c3:process>
+          <c3:object ref="SimpleExtractor" type="extractor"/>
+          <c3:object ref="PreserveMaskingTokenizer" type="tokenizer"/>
+          <c3:object ref="SimpleTokenMerger" type="tokenMerger"/>
+          <c3:object ref="DiacriticNormalizer" type="normalizer"/>
+          <c3:object ref="CaseNormalizer" type="normalizer"/>
+        </c3:process>
+      </c3:source>
+      <c3:source mode="exact">
+        <c3:process>
+          <c3:object ref="SimpleExtractor" type="extractor"/>
+          <c3:object ref="PreserveMaskingTokenizer" type="tokenizer"/>
+          <c3:object ref="SimpleTokenMerger" type="tokenMerger"/>
+          <c3:object ref="SpaceNormalizer" type="normalizer"/>
+          <c3:object ref="DiacriticNormalizer" type="normalizer"/>
+          <c3:object ref="CaseNormalizer" type="normalizer"/>
+        </c3:process>
+      </c3:source>
+    </c3:subConfig>
+
+  </c3:subConfigs>
+</c3:config>

@@ -1,0 +1,48 @@
+<zrx:explain xmlns:c3="http://www.cheshire3.org/schemas/explain/" xmlns:zrx="http://explain.z3950.org/dtd/2.0/" authoritative="true" id="db_test_pgsql">
+  <zrx:serverInfo version="1.1" protocol="srw/u" transport="http">
+    <zrx:host>localhost.localdomain</zrx:host>
+    <zrx:port>80</zrx:port>
+    <zrx:database>api/sru/db_test_pgsql</zrx:database>
+  </zrx:serverInfo>
+  <zrx:databaseInfo>
+    <zrx:title>Test PostgreSQL</zrx:title>
+    <zrx:description></zrx:description>
+  </zrx:databaseInfo>
+  <zrx:metaInfo>
+    <zrx:dateModified>2015-08-17T00:06:14.729609</zrx:dateModified>
+  </zrx:metaInfo>
+  <zrx:schemaInfo/>
+  <zrx:indexInfo>
+    <zrx:set identifier="info:srw/cql-context-set/1/cql-v1.2" name="cql"/>
+    <zrx:set identifier="info:srw/cql-context-set/1/dc-v1.1" name="dc"/>
+    <zrx:set identifier="info:srw/cql-context-set/2/rec-1.1" name="rec"/>
+  
+    <zrx:index c3:index="idx-anywhere">
+      <zrx:title>Anywhere / Full-text Keywords</zrx:title>
+      <zrx:map>
+        <zrx:name set="cql">anywhere</zrx:name>
+      </zrx:map>
+      <zrx:configInfo>
+        <zrx:supports type="relation">=</zrx:supports>
+        <zrx:supports type="relation">any</zrx:supports>
+        <zrx:supports type="relation">all</zrx:supports>
+        <zrx:supports type="relationModifier">word</zrx:supports>
+      </zrx:configInfo>
+    </zrx:index>
+   
+  </zrx:indexInfo>
+  <zrx:configInfo>
+    <zrx:default type="numberOfRecords">1</zrx:default>
+    <zrx:default type="contextSet">cql</zrx:default>
+    <zrx:default type="index">cql.anywhere</zrx:default>
+    <zrx:default type="relation">all</zrx:default>
+    <zrx:default type="sortCaseSensitive">false</zrx:default>
+    <zrx:default type="sortAscending">true</zrx:default>
+    <zrx:default type="sortMissingValue">HighValue</zrx:default>
+    <zrx:setting type="maximumRecords">50</zrx:setting>
+    <zrx:supports type="resultSets"/>
+    <zrx:supports type="sort"/>
+    <zrx:supports type="relationModifier">relevant</zrx:supports>
+    <zrx:supports type="relationModifier">word</zrx:supports>
+  </zrx:configInfo>
+</zrx:explain>
